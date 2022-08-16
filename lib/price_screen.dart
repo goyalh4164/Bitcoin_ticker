@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 //for cupertino
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
+//importing a particular class from dart:io to check on which platforn our software is runing
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   const PriceScreen({Key? key}) : super(key: key);
@@ -12,7 +14,8 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
-  List<DropdownMenuItem<String>> getDropdownItems() {
+  //this is the android drop down button for android users
+  DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
     for (String currency in currenciesList) {
       var newItem = DropdownMenuItem(
@@ -21,21 +24,40 @@ class _PriceScreenState extends State<PriceScreen> {
       );
       dropdownItems.add(newItem);
     }
-    return dropdownItems;
+    return DropdownButton<String>(
+      value: selectedCurrency,
+      items: dropdownItems,
+      onChanged: (value) {
+        setState(
+          () {
+            selectedCurrency = value!;
+          },
+        );
+      },
+    );
   }
 
-  List<Text> getPickerItems() {
+//this is the PickerMenu for the ios users
+  CupertinoPicker iOSPICKER() {
     List<Text> pickerItems = [];
     for (String currency in currenciesList) {
       var newItem = Text(currency);
       pickerItems.add(newItem);
     }
-    return pickerItems;
+    return CupertinoPicker(
+      backgroundColor: Colors.lightBlue,
+      itemExtent: 32.0,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: pickerItems,
+    );
   }
+
+  //now automataing the picker to select itself for android and iOS automatically
 
   @override
   Widget build(BuildContext context) {
-    getDropdownItems();
     return Scaffold(
       appBar: AppBar(
         title: Text('🤑 Coin Ticker'),
@@ -71,14 +93,8 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: CupertinoPicker(
-              backgroundColor: Colors.lightBlue,
-              itemExtent: 32.0,
-              onSelectedItemChanged: (selectedIndex) {
-                print(selectedIndex);
-              },
-              children: getPickerItems(),
-            ),
+            //used ternary operator to return the widget according to the device
+            child: Platform.isIOS ? iOSPICKER() : androidDropdown(),
           ),
         ],
       ),
@@ -87,12 +103,4 @@ class _PriceScreenState extends State<PriceScreen> {
 }
 //--------------------------------------------------------
 //this is the android view in both the phones so we will now use cupertenu for ios view
-// DropdownButton<String>(
-// value: selectedCurrency,
-// items: getDropdownItems(),
-// onChanged: (value) {
-// setState(() {
-// selectedCurrency = value!;
-// });
-// },
-// ),
+//
